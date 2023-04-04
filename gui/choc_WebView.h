@@ -126,13 +126,13 @@ public:
     /// Returns a platform-specific handle for this view
     void* getViewHandle() const;
 
+    virtual void handleWebviewInvocation (const std::string&);
 private:
     //==============================================================================
     struct Pimpl;
     std::unique_ptr<Pimpl> pimpl;
 
     std::unordered_map<std::string, CallbackFn> bindings;
-    void invokeBinding (const std::string&);
 };
 
 } // namespace choc::ui
@@ -449,7 +449,7 @@ private:
                                 if (auto p = reinterpret_cast<Pimpl*> (objc_getAssociatedObject (self, "choc_webview")))
                                 {
                                     auto body = objc::call<id> (msg, "body");
-                                    p->owner.invokeBinding (objc::call<const char*> (body, "UTF8String"));
+                                    p->owner.handleWebviewInvocation (objc::call<const char*> (body, "UTF8String"));
                                 }
                             }),
                             "v@:@@");
@@ -1124,7 +1124,7 @@ private:
         {
             LPWSTR message = {};
             args->TryGetWebMessageAsString (std::addressof (message));
-            ownerPimpl.owner.invokeBinding (createUTF8FromUTF16 (message));
+            ownerPimpl.owner.handleWebviewInvocation(createUTF8FromUTF16(message));
             sender->PostWebMessageAsString (message);
             CoTaskMemFree (message);
             return S_OK;
@@ -1243,7 +1243,7 @@ inline void WebView::unbind (const std::string& functionName)
     }
 }
 
-inline void WebView::invokeBinding (const std::string& msg)
+inline void WebView::handleWebviewInvocation (const std::string&)
 {
     try
     {
