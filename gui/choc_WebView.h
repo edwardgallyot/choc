@@ -1243,7 +1243,7 @@ inline void WebView::unbind (const std::string& functionName)
     }
 }
 
-inline void WebView::handleWebviewInvocation (const std::string&)
+inline void WebView::handleWebviewInvocation (const std::string& msg)
 {
     try
     {
